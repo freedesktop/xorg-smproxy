@@ -25,8 +25,11 @@ in this Software without prior written authorization from The Open Group.
 
 Author:  Ralph Mor, X Consortium
 ******************************************************************************/
+/* $XFree86: xc/programs/smproxy/smproxy.c,v 3.9 2001/12/14 20:01:05 dawes Exp $ */
 
 #include "smproxy.h"
+#include <unistd.h>
+#include <X11/Xmu/WinUtil.h>
 
 XtAppContext appContext;
 Display *disp;
@@ -57,6 +60,39 @@ Bool sent_save_done = 0;
 int Argc;
 char **Argv;
 
+Bool HasSaveYourself ( Window window );
+Bool HasXSMPsupport ( Window window );
+WinInfo * GetClientLeader ( WinInfo *winptr );
+char * CheckFullyQuantifiedName ( char *name, int *newstring );
+void FinishSaveYourself ( WinInfo *winInfo, Bool has_WM_SAVEYOURSELF );
+void SaveYourselfCB ( SmcConn smcConn, SmPointer clientData, int saveType, 
+		      Bool shutdown, int interactStyle, Bool fast );
+void DieCB ( SmcConn smcConn, SmPointer clientData );
+void SaveCompleteCB ( SmcConn smcConn, SmPointer clientData );
+void ShutdownCancelledCB ( SmcConn smcConn, SmPointer clientData );
+void ProcessIceMsgProc ( XtPointer client_data, int *source, XtInputId *id );
+void NullIceErrorHandler ( IceConn iceConn, Bool swap, 
+			   int offendingMinorOpCode, 
+			   unsigned long offendingSequence, 
+			   int errorClass, int severity, IcePointer values );
+void ConnectClientToSM ( WinInfo *winInfo );
+int MyErrorHandler ( Display *display, XErrorEvent *event );
+Bool LookupWindow ( Window window, WinInfo **ptr_ret, WinInfo **prev_ptr_ret );
+WinInfo * AddNewWindow ( Window window );
+void RemoveWindow ( WinInfo *winptr );
+void Got_WM_STATE ( WinInfo *winptr );
+void HandleCreate ( XCreateWindowEvent *event );
+void HandleDestroy ( XDestroyWindowEvent *event );
+void HandleUpdate ( XPropertyEvent *event );
+void ProxySaveYourselfPhase2CB ( SmcConn smcConn, SmPointer clientData );
+void ProxySaveYourselfCB ( SmcConn smcConn, SmPointer clientData, 
+			   int saveType, Bool shutdown, int interactStyle, 
+			   Bool fast );
+void ProxyDieCB ( SmcConn smcConn, SmPointer clientData );
+void ProxySaveCompleteCB ( SmcConn smcConn, SmPointer clientData );
+void ProxyShutdownCancelledCB ( SmcConn smcConn, SmPointer clientData );
+Status ConnectProxyToSM ( char *previous_id );
+void CheckForExistingWindows ( Window root );
 
 
 Bool
@@ -237,7 +273,7 @@ Bool has_WM_SAVEYOURSELF;
 	prop1val.value = (SmPointer) winInfo->wm_command[0];
 	prop1val.length = strlen (winInfo->wm_command[0]);
     
-	sprintf (userId, "%d", getuid());
+	sprintf (userId, "%ld", (long)getuid());
 	prop2.name = SmUserID;
 	prop2.type = SmARRAY8;
 	prop2.num_vals = 1;
@@ -347,7 +383,8 @@ Bool fast;
 
 	    if (debug)
 	    {
-		printf ("Sent SAVE YOURSELF to 0x%x\n", winInfo->window);    
+		printf ("Sent SAVE YOURSELF to 0x%x\n", 
+			(unsigned int)winInfo->window);    
 		printf ("\n");
 	    }
 	}
@@ -356,7 +393,7 @@ Bool fast;
 	    if (debug)
 	    {
 		printf ("Failed to send SAVE YOURSELF to 0x%x\n",
-		    winInfo->window);    
+		    (unsigned int)winInfo->window);    
 		printf ("\n");
 	    }
 	}
@@ -381,7 +418,7 @@ SmPointer clientData;
     /* Now tell the client to die */
 
     if (debug)
-	printf ("Trying to kill 0x%x\n", winInfo->window);
+	printf ("Trying to kill 0x%x\n", (unsigned int)winInfo->window);
 
     XSync (disp, 0);
     XKillClient (disp, winInfo->window);
@@ -529,7 +566,8 @@ WinInfo *winInfo;
 
     if (debug)
     {
-	printf ("Connected to SM, window = 0x%x\n", winInfo->window);
+	printf ("Connected to SM, window = 0x%x\n", 
+		(unsigned int)winInfo->window);
 	printf ("\n");
     }
 
@@ -538,6 +576,7 @@ WinInfo *winInfo;
 
 
 
+int
 MyErrorHandler (display, event)
 
 Display *display;
@@ -545,6 +584,7 @@ XErrorEvent *event;
 
 {
     caught_error = 1;
+    return 0;
 }
 
 
@@ -866,7 +906,8 @@ XDestroyWindowEvent *event;
 
 	if (debug)
 	{
-	    printf ("Removed window (window = 0x%x)\n", winptr->window);
+	    printf ("Removed window (window = 0x%x)\n", 
+		    (unsigned int)winptr->window);
 	    printf ("\n");
 	}
 
@@ -941,7 +982,7 @@ SmPointer clientData;
 	prop1val.value = Argv[0];
 	prop1val.length = strlen (Argv[0]);
 
-	sprintf (userId, "%d", getuid());
+	sprintf (userId, "%ld", (long)getuid());
 	prop2.name = SmUserID;
 	prop2.type = SmARRAY8;
 	prop2.num_vals = 1;
@@ -1211,11 +1252,8 @@ Window root;
 
 
 
-main (argc, argv)
-
-int argc;
-char **argv;
-
+int
+main (int argc, char *argv[])
 {
     char *restore_filename = NULL;
     char *client_id = NULL;
@@ -1311,4 +1349,5 @@ char **argv;
 	    break;
 	}
     }
+    exit(0);
 }
