@@ -25,6 +25,7 @@ in this Software without prior written authorization from The Open Group.
 
 Author:  Ralph Mor, X Consortium
 ******************************************************************************/
+/* $XFree86: xc/programs/smproxy/smproxy.h,v 1.6 2001/12/14 20:01:05 dawes Exp $ */
 
 #include <X11/Xosdefs.h>
 #include <X11/Xfuncs.h>
@@ -42,13 +43,7 @@ Author:  Ralph Mor, X Consortium
 #else
 #include <stdio.h>
 #endif
-
-#ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
-#else
-extern char *malloc(), *calloc(), *realloc(), *getenv();
-extern void free();
-#endif
 
 #ifndef X_NOT_POSIX
 #ifdef _POSIX_SOURCE
@@ -90,12 +85,22 @@ typedef struct WinInfo {
 
 } WinInfo;
 
+typedef struct ProxyFileEntry
+{
+    struct ProxyFileEntry *next;
+    int tag;
+    char *client_id;
+    XClassHint class;
+    char *wm_name;
+    int wm_command_count;
+    char **wm_command;
+} ProxyFileEntry;
 
-extern int WriteProxyFileEntry ();
-extern int ReadProxyFileEntry ();
-extern void ReadProxyFile ();
-extern char *WriteProxyFile ();
-extern char *LookupClientID ();
+extern int WriteProxyFileEntry ( FILE *proxyFile, WinInfo *theWindow );
+extern int ReadProxyFileEntry ( FILE *proxyFile, ProxyFileEntry **pentry );
+extern void ReadProxyFile ( char *filename );
+extern char * WriteProxyFile ( void );
+extern char * LookupClientID ( WinInfo *theWindow );
 
 
 #define SAVEFILE_VERSION 1

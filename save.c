@@ -25,32 +25,33 @@ in this Software without prior written authorization from The Open Group.
 
 Author:  Ralph Mor, X Consortium
 ******************************************************************************/
+/* $XFree86: xc/programs/smproxy/save.c,v 1.8 2001/12/14 20:01:05 dawes Exp $ */
 
 #include "smproxy.h"
+#ifdef HAS_MKSTEMP
+#include <unistd.h>
+#endif
 
-typedef struct ProxyFileEntry
-{
-    struct ProxyFileEntry *next;
-    int tag;
-    char *client_id;
-    XClassHint class;
-    char *wm_name;
-    int wm_command_count;
-    char **wm_command;
-} ProxyFileEntry;
 
 ProxyFileEntry *proxyFileHead = NULL;
 
 extern WinInfo *win_head;
 
+static int write_byte ( FILE *file, unsigned char b );
+static int write_short ( FILE *file, unsigned short s );
+static int write_counted_string ( FILE *file, char *string );
+static int read_byte ( FILE *file, unsigned char *bp );
+static int read_short ( FILE *file, unsigned short *shortp );
+static int read_counted_string ( FILE *file, char **stringp );
+#ifndef HAS_MKSTEMP
+static char * unique_filename ( char *path, char *prefix );
+#else
+static char * unique_filename ( char *path, char *prefix, int *pFd );
+#endif
 
 
 static int
-write_byte (file, b)
-
-FILE		*file;
-unsigned char   b;
-
+write_byte (FILE *file, unsigned char b)
 {
     if (fwrite ((char *) &b, 1, 1, file) != 1)
 	return 0;
@@ -59,11 +60,7 @@ unsigned char   b;
 
 
 static int
-write_short (file, s)
-
-FILE		*file;
-unsigned short	s;
-
+write_short (FILE *file, unsigned short s)
 {
     unsigned char   file_short[2];
 
@@ -224,7 +221,7 @@ ProxyFileEntry **pentry;
 
 {
     ProxyFileEntry *entry;
-    char byte;
+    unsigned char byte;
     int i;
 
     *pentry = entry = (ProxyFileEntry *) malloc (
@@ -333,13 +330,21 @@ char *filename;
 
 
 
+#ifndef HAS_MKSTEMP
 static char *
 unique_filename (path, prefix)
-
 char *path;
 char *prefix;
+#else
+static char *
+unique_filename (path, prefix, pFd)
+char *path;
+char *prefix;
+int *pFd;
+#endif
 
 {
+#ifndef HAS_MKSTEMP
 #ifndef X_NOT_POSIX
     return ((char *) tempnam (path, prefix));
 #else
@@ -357,6 +362,19 @@ char *prefix;
     else
 	return (NULL);
 #endif
+#else 
+    char tempFile[PATH_MAX];
+    char *ptr;
+
+    sprintf (tempFile, "%s/%sXXXXXX", path, prefix);
+    ptr = (char *)malloc(strlen(tempFile) + 1);
+    if (ptr != NULL) 
+    {
+	strcpy(ptr, tempFile);
+	*pFd =  mkstemp(ptr);
+    }
+    return ptr;
+#endif
 }
 
 
@@ -367,6 +385,9 @@ WriteProxyFile ()
 {
     FILE *proxyFile = NULL;
     char *filename = NULL;
+#ifdef HAS_MKSTEMP
+    int fd;
+#endif
     char *path;
     WinInfo *winptr;
     Bool success = False;
@@ -379,12 +400,19 @@ WriteProxyFile ()
 	    path = ".";
     }
 
+#ifndef HAS_MKSTEMP
     if ((filename = unique_filename (path, ".prx")) == NULL)
 	goto bad;
 
     if (!(proxyFile = fopen (filename, "wb")))
 	goto bad;
+#else
+    if ((filename = unique_filename (path, ".prx", &fd)) == NULL)
+	goto bad;
 
+    if (!(proxyFile = fdopen(fd, "wb"))) 
+	goto bad;
+#endif
     if (!write_short (proxyFile, SAVEFILE_VERSION))
 	goto bad;
 
