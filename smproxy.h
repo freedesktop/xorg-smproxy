@@ -25,7 +25,7 @@ in this Software without prior written authorization from The Open Group.
 
 Author:  Ralph Mor, X Consortium
 ******************************************************************************/
-/* $XFree86$ */
+/* $XFree86: xc/programs/smproxy/smproxy.h,v 1.6 2001/12/14 20:01:05 dawes Exp $ */
 
 #include <X11/Xosdefs.h>
 #include <X11/Xfuncs.h>
