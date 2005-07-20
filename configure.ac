@@ -34,8 +34,8 @@ AC_CHECK_FUNC([mkstemp],
    AC_DEFINE(HAS_MKSTEMP,1,[Define to 1 if you have the `mkstemp' function.]))
 
 # Checks for pkg-config packages
-PKG_CHECK_MODULES(DEP, xt xmu)
-AC_SUBST(DEP_CFLAGS)
-AC_SUBST(DEP_LIBS)
+PKG_CHECK_MODULES(SMPROXY, xt xmu)
+AC_SUBST(SMPROXY_CFLAGS)
+AC_SUBST(SMPROXY_LIBS)
 
 AC_OUTPUT([Makefile])

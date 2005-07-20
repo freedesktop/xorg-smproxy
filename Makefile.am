@@ -21,8 +21,8 @@
 
 bin_PROGRAMS = smproxy
 
-smproxy_CFLAGS = $(DEP_CFLAGS)
-smproxy_LDADD = $(DEP_LIBS)
+smproxy_CFLAGS = $(SMPROXY_CFLAGS)
+smproxy_LDADD = $(SMPROXY_LIBS)
 
 smproxy_SOURCES =	\
         save.c \
