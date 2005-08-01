@@ -29,6 +29,6 @@ smproxy_SOURCES =	\
         smproxy.c \
         smproxy.h
 
-dist_man_MANS = \
+dist_man1_MANS = \
         smproxy.man
 
