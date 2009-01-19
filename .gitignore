@@ -18,3 +18,7 @@ smproxy
 smproxy.1
 stamp-h1
 *~
+*.o
+smproxy-*.tar.*
+ChangeLog
+tags

@@ -107,5 +107,6 @@ extern void ReadProxyFile ( char *filename );
 extern char * WriteProxyFile ( void );
 extern char * LookupClientID ( WinInfo *theWindow );
 
+extern WinInfo *win_head;
 
 #define SAVEFILE_VERSION 1
