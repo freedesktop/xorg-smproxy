@@ -34,8 +34,7 @@ AM_CONFIG_HEADER(config.h)
 
 XORG_DEFAULT_OPTIONS
 
-AC_CHECK_FUNC([mkstemp], 
-   AC_DEFINE(HAS_MKSTEMP,1,[Define to 1 if you have the "mkstemp" function.]))
+AC_CHECK_FUNCS([mkstemp])
 
 # Checks for pkg-config packages
 PKG_CHECK_MODULES(SMPROXY, sm xt xmuu)

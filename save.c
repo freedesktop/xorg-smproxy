@@ -28,7 +28,7 @@ Author:  Ralph Mor, X Consortium
 /* $XFree86: xc/programs/smproxy/save.c,v 1.7 2001/01/17 23:45:04 dawes Exp $ */
 
 #include "smproxy.h"
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
 #include <unistd.h>
 #endif
 
@@ -41,7 +41,7 @@ static int write_counted_string ( FILE *file, char *string );
 static int read_byte ( FILE *file, unsigned char *bp );
 static int read_short ( FILE *file, unsigned short *shortp );
 static int read_counted_string ( FILE *file, char **stringp );
-#ifndef HAS_MKSTEMP
+#ifndef HAVE_MKSTEMP
 static char * unique_filename ( char *path, char *prefix );
 #else
 static char * unique_filename ( char *path, char *prefix, int *pFd );
@@ -301,7 +301,7 @@ ReadProxyFile(char *filename)
 
 
 
-#ifndef HAS_MKSTEMP
+#ifndef HAVE_MKSTEMP
 static char *
 unique_filename(char *path, char *prefix)
 #else
@@ -309,7 +309,7 @@ static char *
 unique_filename(char *path, char *prefix, int *pFd)
 #endif
 {
-#ifndef HAS_MKSTEMP
+#ifndef HAVE_MKSTEMP
 #ifndef X_NOT_POSIX
     return ((char *) tempnam (path, prefix));
 #else
@@ -349,7 +349,7 @@ WriteProxyFile(void)
 {
     FILE *proxyFile = NULL;
     char *filename = NULL;
-#ifdef HAS_MKSTEMP
+#ifdef HAVE_MKSTEMP
     int fd;
 #endif
     char *path;
@@ -364,7 +364,7 @@ WriteProxyFile(void)
 	    path = ".";
     }
 
-#ifndef HAS_MKSTEMP
+#ifndef HAVE_MKSTEMP
     if ((filename = unique_filename (path, ".prx")) == NULL)
 	goto bad;
 
