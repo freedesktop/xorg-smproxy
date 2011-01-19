@@ -40,4 +40,7 @@ AC_CHECK_FUNCS([mkstemp])
 # Checks for pkg-config packages
 PKG_CHECK_MODULES(SMPROXY, sm xt xmuu)
 
-AC_OUTPUT([Makefile])
+AC_CONFIG_FILES([
+	Makefile
+	man/Makefile])
+AC_OUTPUT
