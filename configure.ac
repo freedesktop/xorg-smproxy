@@ -38,7 +38,7 @@ XORG_DEFAULT_OPTIONS
 AC_CHECK_FUNCS([mkstemp])
 
 # Checks for pkg-config packages
-PKG_CHECK_MODULES(SMPROXY, sm xt xmuu)
+PKG_CHECK_MODULES(SMPROXY, [sm ice xt xmuu])
 
 AC_CONFIG_FILES([
 	Makefile
