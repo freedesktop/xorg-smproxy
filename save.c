@@ -310,9 +310,9 @@ unique_filename(char *path, char *prefix, int *pFd)
 #endif
 {
 #ifndef HAVE_MKSTEMP
-#ifndef X_NOT_POSIX
+# ifndef HAVE_MKTEMP
     return ((char *) tempnam (path, prefix));
-#else
+# else /* HAVE_MKTEMP */
     char tempFile[PATH_MAX];
     char *tmp;
 
@@ -326,8 +326,8 @@ unique_filename(char *path, char *prefix, int *pFd)
     }
     else
 	return (NULL);
-#endif
-#else 
+# endif /* HAVE_MKTEMP */
+#else /* HAVE_MKSTEMP */
     char tempFile[PATH_MAX];
     char *ptr;
 
@@ -339,7 +339,7 @@ unique_filename(char *path, char *prefix, int *pFd)
 	*pFd =  mkstemp(ptr);
     }
     return ptr;
-#endif
+#endif /* HAVE_MKSTEMP */
 }
 
 
