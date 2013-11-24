@@ -107,3 +107,8 @@ extern char * LookupClientID ( WinInfo *theWindow );
 extern WinInfo *win_head;
 
 #define SAVEFILE_VERSION 1
+
+#ifndef HAVE_ASPRINTF
+_X_HIDDEN int _X_ATTRIBUTE_PRINTF(2,3) asprintf(char ** ret,
+                                                const char *format, ...);
+#endif

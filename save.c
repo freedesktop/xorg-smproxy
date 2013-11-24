@@ -45,6 +45,51 @@ static char * unique_filename ( char *path, char *prefix );
 static char * unique_filename ( char *path, char *prefix, int *pFd );
 #endif
 
+#ifndef HAVE_ASPRINTF
+# include <stdarg.h>
+
+/* sprintf variant found in newer libc's which allocates string to print to */
+_X_HIDDEN int _X_ATTRIBUTE_PRINTF(2,3)
+asprintf(char ** ret, const char *format, ...)
+{
+    char buf[256];
+    int len;
+    va_list ap;
+
+    va_start(ap, format);
+    len = vsnprintf(buf, sizeof(buf), format, ap);
+    va_end(ap);
+
+    if (len < 0)
+	return -1;
+
+    if (len < sizeof(buf))
+    {
+	*ret = strdup(buf);
+    }
+    else
+    {
+	*ret = malloc(len + 1); /* snprintf doesn't count trailing '\0' */
+	if (*ret != NULL)
+	{
+	    va_start(ap, format);
+	    len = vsnprintf(*ret, len + 1, format, ap);
+	    va_end(ap);
+	    if (len < 0) {
+		free(*ret);
+		*ret = NULL;
+	    }
+	}
+    }
+
+    if (*ret == NULL)
+	return -1;
+
+    return len;
+}
+#endif
+
+
 
 static int
 write_byte (FILE *file, unsigned char b)
