@@ -361,7 +361,7 @@ unique_filename(char *path, char *prefix, int *pFd)
     char tempFile[PATH_MAX];
     char *tmp;
 
-    sprintf (tempFile, "%s/%sXXXXXX", path, prefix);
+    snprintf (tempFile, sizeof(tempFile), "%s/%sXXXXXX", path, prefix);
     tmp = (char *) mktemp (tempFile);
     if (tmp)
     {
@@ -373,17 +373,12 @@ unique_filename(char *path, char *prefix, int *pFd)
 	return (NULL);
 # endif /* HAVE_MKTEMP */
 #else /* HAVE_MKSTEMP */
-    char tempFile[PATH_MAX];
-    char *ptr;
+    char *tempFile;
 
-    sprintf (tempFile, "%s/%sXXXXXX", path, prefix);
-    ptr = (char *)malloc(strlen(tempFile) + 1);
-    if (ptr != NULL) 
-    {
-	strcpy(ptr, tempFile);
-	*pFd =  mkstemp(ptr);
-    }
-    return ptr;
+    if (asprintf (&tempFile, "%s/%sXXXXXX", path, prefix) == -1)
+	return NULL;
+    *pFd =  mkstemp(tempFile);
+    return tempFile;
 #endif /* HAVE_MKSTEMP */
 }
 
