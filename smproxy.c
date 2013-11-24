@@ -1184,6 +1184,10 @@ main (int argc, char *argv[])
 		}
 		restore_filename = argv[i];
 		continue;
+
+	      case 'v':
+		puts (PACKAGE_STRING);
+		exit (0);
 	    }
 	}
 
@@ -1192,7 +1196,8 @@ main (int argc, char *argv[])
     usage:
 
 	fprintf (stderr,
-	    "usage:  %s [-clientId id] [-restore file] [-debug]\n", argv[0]);
+	    "usage:  %s [-clientId id] [-restore file] [-debug] [-version]\n",
+		 argv[0]);
 	exit (1);
     }
 
