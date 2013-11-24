@@ -1168,16 +1168,26 @@ main (int argc, char *argv[])
 		continue;
 
 	      case 'c':				/* -clientId */
-		if (++i >= argc) goto usage;
+		if (++i >= argc) {
+		    fprintf (stderr, "%s: -clientId requires an argument\n",
+			     argv[0]);
+		    goto usage;
+		}
 		client_id = argv[i];
 		continue;
 
 	      case 'r':				/* -restore */
-		if (++i >= argc) goto usage;
+		if (++i >= argc) {
+		    fprintf (stderr, "%s: -restore requires an argument\n",
+			     argv[0]);
+		    goto usage;
+		}
 		restore_filename = argv[i];
 		continue;
 	    }
 	}
+
+	fprintf (stderr, "%s: unrecognized argument: %s\n", argv[0], argv[i]);
 
     usage:
 
