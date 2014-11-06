@@ -47,7 +47,6 @@ Author:  Ralph Mor, X Consortium
 #endif
 #include <stdlib.h>
 
-#ifndef X_NOT_POSIX
 #ifdef _POSIX_SOURCE
 #include <limits.h>
 #else
@@ -55,7 +54,7 @@ Author:  Ralph Mor, X Consortium
 #include <limits.h>
 #undef _POSIX_SOURCE
 #endif
-#endif /* X_NOT_POSIX */
+
 #ifndef PATH_MAX
 #include <sys/param.h>
 #ifndef PATH_MAX
